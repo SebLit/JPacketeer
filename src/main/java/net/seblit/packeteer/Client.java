@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
  * A {@link Client} that can send and read {@link Packet}s through a {@link NetworkAdapter}.
  * For creation of {@link IncomingPacket}s a {@link PacketFactory} is used.<br>
  * <br>
- * This Client also provides support for package acknowledgement and data validation via check sum. Note that the tracking window
+ * This Client also provides support for packet acknowledgement and data validation via check sum. Note that the tracking window
  * for transmission states is limited to 32 transmissions. Producing transmissions further than 32 apart from another will
  * lead to state loss and effected transmissions will be considered failed.
  */
@@ -58,7 +58,7 @@ public class Client {
      * <br>
      * <h1>Initialization</h1>
      * Before transmission, a sequential wrap-around one byte messageId is generated to identify each message.<br>
-     * For header and payload (if provided) a 16-bit CRC-16/IBM Checksum is generated. I uses following parameters
+     * For header and payload (if provided) a 16-bit CRC-16/IBM Checksum is generated. It uses following parameters
      * <li>Initial value: 0x0</li>
      * <li>Polynomial: 0xA001</li>
      * <li>Processing order: LSB to MSB</li>

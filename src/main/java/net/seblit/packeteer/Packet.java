@@ -17,7 +17,7 @@ public class Packet {
 
     /**
      * Creates a new instance
-     * @param type The type of the package. Note that type 0 ({@link Packet#TYPE_ACK}) is reserved for acknowledgements
+     * @param type The type of the packet. Note that type 0 ({@link Packet#TYPE_ACK}) is reserved for acknowledgements
      * @param version The version of the packet
      * @param flags The flags of the packet. Note that flag 0 is reserved for acknowledgements
      * */
