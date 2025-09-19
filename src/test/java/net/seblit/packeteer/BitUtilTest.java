@@ -10,11 +10,11 @@ public class BitUtilTest {
 
     @Test
     public void testIsFlagSet() {
-        int allFlags = 0b11111111;
-        int noFlags = 0b00000000;
-        int evenFlags = 0b01010101;
-        int unevenFlags = 0b10101010;
-        for (int bit = 0; bit < 8; bit++) {
+        int allFlags = 0xFFFFFFFF;
+        int noFlags = 0x0;
+        int unevenFlags = 0xAAAAAAAA;
+        int evenFlags = 0x55555555;
+        for (int bit = 0; bit < 32; bit++) {
             assertTrue(BitUtil.isFlagSet(allFlags, bit));
             assertFalse(BitUtil.isFlagSet(noFlags, bit));
             assertEquals(bit % 2 == 0, BitUtil.isFlagSet(evenFlags, bit));
@@ -24,15 +24,15 @@ public class BitUtilTest {
 
     @Test
     public void testCreateFlags() {
-        byte allFlags = (byte) 0b11111111;
-        byte noFlags = 0b00000000;
-        byte unevenFlags = (byte) 0b10101010;
-        byte evenFlags = 0b01010101;
+        int allFlags = 0xFFFFFFFF;
+        int noFlags = 0x0;
+        int unevenFlags = 0xAAAAAAAA;
+        int evenFlags = 0x55555555;
 
-        assertEquals(allFlags, BitUtil.createFlags(0, 1, 2, 3, 4, 5, 6, 7));
+        assertEquals(allFlags, BitUtil.createFlags(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31));
         assertEquals(noFlags, BitUtil.createFlags());
-        assertEquals(unevenFlags, BitUtil.createFlags(1, 3, 5, 7));
-        assertEquals(evenFlags, BitUtil.createFlags(0, 2, 4, 6));
+        assertEquals(unevenFlags, BitUtil.createFlags(1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31));
+        assertEquals(evenFlags, BitUtil.createFlags(0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30));
     }
 
     @Test

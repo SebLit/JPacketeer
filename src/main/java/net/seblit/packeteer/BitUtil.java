@@ -20,7 +20,7 @@ public class BitUtil {
         for (int index : indices) {
             result |= (1 << index);
         }
-        return (byte) result;
+        return result;
     }
 
     /**
