@@ -224,6 +224,19 @@ public class ClientTest {
     }
 
     @Test
+    public void testReceive_packetRepeat() throws NetworkException, ProcessingException {
+        byte[] data = new byte[TEST_DATA_PACKET.length*2];
+        System.arraycopy(TEST_DATA_PACKET, 0, data, 0, TEST_DATA_PACKET.length);
+        System.arraycopy(TEST_DATA_PACKET, 0, data, TEST_DATA_PACKET.length, TEST_DATA_PACKET.length);
+        when(mockedAdapter.read(anyInt())).then(new AdapterByteStream(data));
+
+        client.receive();
+        client.receive();
+        verify(mockedFactory, times(1)).create(anyByte(), anyByte(), anyByte(), anyByte());
+        verify(mockedIncomingPacket, times(1)).process(any(byte[].class));
+    }
+
+    @Test
     public void testChecksum() {
         byte[] data = {0b0, 0b1, 0b10, 0b11};
         int expected = 41232;
