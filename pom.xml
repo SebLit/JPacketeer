@@ -7,6 +7,15 @@
     <groupId>com.seblit.packeteer</groupId>
     <artifactId>Packeteer</artifactId>
     <version>1.0.0</version>
+    <name>JPacketeer</name>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/SebLit/JPacketeer</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

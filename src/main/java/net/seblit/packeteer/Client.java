@@ -20,8 +20,10 @@ public class Client {
     private final PacketFactory factory;
     private final int maxSendAttempts;
     private byte messageCount = 0;
+    private byte latestReceivedMessage = 0;
     private int pendingStates = 0;
     private int failureStates = 0;
+    private int processingStates = 0;
 
     /**
      * Creates a new instance of {@link Client}
@@ -179,6 +181,10 @@ public class Client {
                     return;
                 }
             }
+            if (!trackIncomingMessage(header[1])) {
+                // packet has already been processed
+                return;
+            }
         }
         boolean success = false;
         try {
@@ -186,9 +192,10 @@ public class Client {
             packet.process(payload);
             success = true;
         } finally {
+            markAsProcessed(header[1]);
             if (BitUtil.isFlagSet(header[4], 0)) { // ack required check - flags index 0 is set to 1
                 byte flags = (byte) (success ? BitUtil.createFlags() : BitUtil.createFlags(1));
-                send(header[2], new Packet(Packet.TYPE_ACK, (byte) 1, flags));
+                send(header[1], new Packet(Packet.TYPE_ACK, (byte) 1, flags));
             }
         }
 
@@ -199,7 +206,7 @@ public class Client {
         if (data != null) {
             int polynomial = 0xA001;
             for (byte b : data) {
-                crc ^= (b & 0xFF);
+                crc ^= BitUtil.getUnsigned(b);
                 for (int i = 0; i < 8; i++) {
                     if ((crc & 0x0001) != 0) {
                         crc = (crc >>> 1) ^ polynomial;
@@ -210,6 +217,30 @@ public class Client {
             }
         }
         return crc & 0xFFFF;
+    }
+
+    private boolean trackIncomingMessage(byte messageId) {
+        int stateIndex = Math.abs(latestReceivedMessage - messageId);
+        if (messageId < 0 && latestReceivedMessage >= 0) {
+            stateIndex = Math.abs(latestReceivedMessage - Math.abs(messageId));
+        }
+        if (stateIndex > 0) {
+            latestReceivedMessage = messageId;
+            processingStates = processingStates << (stateIndex);
+            stateIndex = 0;
+        }
+        return !BitUtil.isFlagSet(processingStates, stateIndex);
+    }
+
+    private void markAsProcessed(byte messageId) {
+        int stateIndex = Math.abs(latestReceivedMessage - messageId);
+        if (messageId < 0 && latestReceivedMessage >= 0) {
+            stateIndex = Math.abs(latestReceivedMessage - Math.abs(messageId));
+        }
+        if (stateIndex > 31) {
+            return;
+        }
+        processingStates = BitUtil.setFlag(processingStates, stateIndex, true);
     }
 
     private void send(byte messageId, Packet packet, byte... payload) throws NetworkException {
@@ -241,7 +272,6 @@ public class Client {
                 sendAttempts++;
             }
             if (requiresAck) {
-
                 while (isAckPending(messageId)) {
                     try {
                         synchronized (adapter) {
@@ -266,7 +296,7 @@ public class Client {
     }
 
     private synchronized void markAckPending(byte messageId, boolean pending, boolean failed) {
-        int diff = (messageCount - messageId) & 0xFF;
+        int diff = BitUtil.getUnsigned(messageCount) - BitUtil.getUnsigned(messageId);
         if (diff == 0 || diff > 32) {
             return;
         }
@@ -284,9 +314,9 @@ public class Client {
     }
 
     private synchronized boolean checkState(int states, byte messageId) throws NetworkException {
-        int diff = (messageCount - messageId) & 0xFF;
+        int diff = BitUtil.getUnsigned(messageCount) - BitUtil.getUnsigned(messageId);
         if (diff == 0 || diff > 32) {
-            throw new SendTimeoutException("Message outside of state window");
+            throw new SendTimeoutException("Message outside of state window: " + diff + ", " + messageCount + ", " + messageId);
         }
         return BitUtil.isFlagSet(states, diff - 1);
     }

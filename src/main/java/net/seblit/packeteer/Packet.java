@@ -56,4 +56,13 @@ public class Packet {
         return BitUtil.isFlagSet(flags, index);
     }
 
+
+    @Override
+    public String toString() {
+        return "Packet{" +
+                "type=" + type +
+                ", version=" + version +
+                ", flags=" + Integer.toBinaryString(Byte.toUnsignedInt(flags))+
+                '}';
+    }
 }

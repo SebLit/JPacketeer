@@ -53,6 +53,10 @@ public class BitUtil {
      * @return an int with its lower 16-bits constructed form provided low and high bytes
      */
     public static int intFrom16Bit(byte low, byte high) {
-        return ((high & 0xFF) << 8) | (low & 0xFF);
+        return (getUnsigned(high) << 8) | getUnsigned(low);
+    }
+
+    public static int getUnsigned(byte value){
+        return 0xFF & value;
     }
 }
