@@ -297,7 +297,7 @@ public class Client {
 
     private synchronized void markAckPending(byte messageId, boolean pending, boolean failed) {
         int diff = BitUtil.getUnsigned(messageCount) - BitUtil.getUnsigned(messageId);
-        if (diff == 0 || diff > 31) {
+        if (diff == 0 || diff > 32) {
             return;
         }
         int stateIndex = diff - 1;
